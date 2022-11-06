@@ -1,0 +1,172 @@
+Latex Notizen
+Use \href{URL}{DESCRIPTION} to add a link with description.
+Use \url{URL} to add a link without a description.
+
+Linux commands
+uname -r
+CTRL+ALT+F1 (or any session from F1-F6) to switch to a terminal session then switch back via CTRL+ALT+F7.
+
+
+##Gazebo WSL 2.0 XServer Commands
+https://www.youtube.com/watch?v=DW7l9LHdK5c&ab_channel=RoboticsWithEmil
+export GAZEBO_IP=127.0.0.1
+export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}'):0
+#export LIBGL_ALWAYS_INDIRECT=1
+export LIBGL_ALWAYS_INDIRECT=0
+
+##ArduPilot Gazebo: Plugin erstellen
+https://ardupilot.org/dev/docs/using-gazebo-simulator-with-sitl.html
+sudo apt install cmake
+sudo apt install g++
+#sudo apt install gazebo9 libgazebo9-dev
+sudo apt install libgazebo9-dev
+
+git clone https://github.com/khancyr/ardupilot_gazebo
+cd ardupilot_gazebo
+mkdir build
+cd build
+cmake ..
+make -j4
+sudo make install
+
+##ArduPilot: erstellen
+https://ardupilot.org/dev/docs/building-setup-linux.html#building-setup-linux
+
+##git clone https://github.com/your-github-userid/ardupilot
+git clone https://github.com/ArduPilot/ardupilot.git
+cd ardupilot
+git submodule update --init --recursive
+
+Install required packages
+Tools/environment_install/install-prereqs-ubuntu.sh -y
+
+Reload the path (log-out and log-in to make permanent):
+. ~/.profile
+
+SITL fliegen
+https://ardupilot.org/dev/docs/sitl-native-on-windows.html
+
+##Gazebo Version 9.12 starten
+gazebo --verbose worlds/iris_arducopter_runway.world
+
+##second terminal: SITL simulation:
+##cd ~/ardupilot/ArduCopter
+##cd ~/ardu/ardupilot/ArduCopter
+export GAZEBO_IP=127.0.0.1
+export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}'):0
+#cd ardu/Ardupilot/ArduCopter
+cd ardu/ardupilot/ArduCopter
+../Tools/autotest/sim_vehicle.py -f gazebo-iris --console --map
+
+
+
+###########################
+Ubuntu 20.0 Install
+https://www.youtube.com/watch?v=wlkoq65mM2A&list=PLy9nLDKxDN683GqAiJ4IVLquYBod_2oA6&index=3
+
+UBUNTU 20:
+https://www.youtube.com/watch?v=1FpJvUVPxL0&t=0s&ab_channel=IntelligentQuads
+https://github.com/Intelligent-Quads/iq_tutorials/blob/master/docs/Installing_Ardupilot_20_04.md
+https://github.com/Intelligent-Quads/iq_tutorials/blob/master/docs/installing_gazebo_arduplugin.md
+http://wiki.ros.org/noetic/Installation/Ubuntu
+https://github.com/Intelligent-Quads/iq_tutorials/blob/master/docs/installing_ros_20_04.md
+https://github.com/Intelligent-Quads/iq_tutorials/blob/master/docs/ros_intro.md
+
+We will also launch the ArduCopter simulator as well. I have made a nice script so that you don't have to remember the big command cd ~/ardupilot/ArduCopter/ && sim_vehicle.py -v ArduCopter -f gazebo-iris --console from the previous tutorials. I recommend you move the script to your home folder for ease of access. Do this by running the command below.
+now we can launch the ardupilot sitl by running
+
+1) ~/startsitl.sh
+2) roslaunch iq_sim runway.launch
+2) roslaunch iq_sim hills.launch
+mode guided
+arm throttle
+takeoff 15
+
+MAVROS starten:
+3) roslaunch iq_sim apm.launch
+
+
+##### 07 C++ GNC Program part1: Takeoff
+cd catkin_ws/src/
+subl .
+catkin build
+source ~/.bashrc
+
+### Distance ###
+1) ~/startsitl.sh
+2) roslaunch iq_sim runway.launch
+3) roslaunch iq_sim apm.launch
+4) rosrun iq_gnc square_300
+4) rosrun iq_gnc square_dist 10 4
+4) rosrun iq_gnc 01_dist 10 10 6
+
+### Battery ###
+1) ~/startsitl.sh
+2) roslaunch iq_sim runway.launch
+3) roslaunch iq_sim apm.launch
+4) rosrun iq_gnc 02_battery_sub 25 20
+
+### Obstacle ###
+1) ~/startsitl.sh
+2) roslaunch iq_sim runway_orig.launch
+   roslaunch iq_sim runway_lidar.launch
+   roslaunch iq_sim runway_lidar_bricks.launch
+3) roslaunch iq_sim apm.launch
+4) rosrun iq_gnc 03_obstacle_sub
+
+
+
+### AGL Altitude ###
+1) ~/startsitl.sh
+2) roslaunch iq_sim hills.launch
+2) roslaunch iq_sim runway.launch
+3) roslaunch iq_sim apm.launch
+4) rosrun iq_gnc 04_hillagl_sub
+
+cd ~/ardupilot/ArduCopter/ &&
+sim_vehicle.py -v ArduCopter -f gazebo-iris --console --map -l 30.4897,-98.1353,0,0
+
+
+###topics
+rostopic list
+rostopic list -v /mavros/battery
+rostopic list -v /mavros/global_position/local
+
+##laufend ausgeben:
+rostopic echo /mavros/battery
+rostopic echo /gazebo/model_states
+rostopic echo /mavros/global_position/local
+
+##check
+rosmsg show sensor_msgs/BatteryState
+rosmsg show nav_msgs/Odometry
+rostopic info /mavros/battery
+
+rostopic pub /battery_status sensor_msgs/BatteryState '{voltage: 12.0, percentage: 0.3, power_supply_status: 3}'
+rostopic pub /battery_status sensor_msgs/BatteryState '{percentage: 0.3}'
+rostopic type /battery_status | rosmsg show
+
+~/ardupilot/Tools/autotest/locations.txt
+sim_vehicle.py -v ArduCopter -f gazebo-iris  -m --mav10 --map --console -I0
+gazebo --verbose iris_ardupilot.world
+
+######
+more models, hill
+git clone https://github.com/osrf/gazebo_models
+echo 'export GAZEBO_MODEL_PATH=~/catkin_ws/gazebo_models:${GAZEBO_MODEL_PATH}' >> ~/.bashrc
+source ~/.bashrc
+
+In the following tutorials we will be accessing the data on these topics in our C++ programs. To see the type of message being published run
+rostopic list -v /mavros/global_position/local
+we see that the topic is publisng the message in the form of nav_msgs/Odometry
+to see the structure of the message you can run the following
+rosmsg show nav_msgs/Odometry
+This will be usefull when writing publishers and subscribers in the future
+
+
+#!/bin/bash
+gnome-terminal \
+ --tab -v -- /bin/sh -c 'sim_vehicle.py -v ArduCopter -f gazebo-iris --console' \
+
+gnome-terminal --full-screen --hide-menubar -- /bin/sh ./startsitl.sh 
+
